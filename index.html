@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>An Entirely Serious Performance Review 🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6ef;
+    --card: #ffffff;
+    --accent: #e8453c;
+    --accent2: #f9a03f;
+    --text: #1a1a2e;
+    --muted: #7a7a8c;
+    --border: #ebe3d9;
+    --selected: #fdecea;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+    background-image: radial-gradient(circle at 20% 10%, #ffe0b2 0%, transparent 40%),
+                      radial-gradient(circle at 80% 80%, #fce4ec 0%, transparent 40%);
+  }
+
+  form.form-wrapper {
+    max-width: 680px;
+    margin: 0 auto;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .header-card {
+    background: var(--card);
+    border-radius: 12px 12px 0 0;
+    border-top: 8px solid var(--accent);
+    padding: 32px 32px 28px;
+    margin-bottom: 2px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  .header-card .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .header-card h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    line-height: 1.25;
+    margin-bottom: 14px;
+  }
+  .header-card h1 em { font-style: italic; color: var(--accent); }
+
+  .header-card p { font-size: 14px; line-height: 1.7; color: var(--muted); }
+
+  .required-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .required-note span { color: var(--accent); }
+
+  .q-card {
+    background: var(--card);
+    padding: 28px 32px;
+    margin-bottom: 2px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+  }
+  .q-card:last-of-type { border-radius: 0 0 12px 12px; }
+  .q-card:focus-within { box-shadow: 0 2px 20px rgba(232,69,60,0.12); }
+
+  .q-label { font-size: 15px; font-weight: 500; margin-bottom: 6px; display: block; line-height: 1.5; }
+  .q-label .req { color: var(--accent); margin-left: 2px; }
+  .q-hint { font-size: 12px; color: var(--muted); margin-bottom: 16px; font-style: italic; }
+
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .option-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; border-radius: 8px;
+    border: 1.5px solid var(--border); cursor: pointer;
+    transition: background 0.15s, border-color 0.15s; font-size: 14px;
+  }
+  .option-row:hover { background: #fdf2f2; border-color: #f5c6c4; }
+  .option-row input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; }
+  .option-row.checked { background: var(--selected); border-color: var(--accent); }
+
+  .stars { display: flex; gap: 6px; flex-direction: row-reverse; justify-content: flex-end; }
+  .stars input { display: none; }
+  .stars label { font-size: 30px; cursor: pointer; color: #ddd; transition: color 0.15s, transform 0.1s; line-height: 1; }
+  .stars input:checked ~ label,
+  .stars label:hover,
+  .stars label:hover ~ label { color: var(--accent2); transform: scale(1.15); }
+
+  .scale-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .scale-row { display: flex; }
+  .scale-btn {
+    flex: 1; height: 40px; border: 1.5px solid var(--border);
+    background: white; cursor: pointer; font-size: 13px;
+    font-family: 'DM Sans', sans-serif; transition: background 0.15s, border-color 0.15s;
+    margin-right: -1px; color: var(--text);
+  }
+  .scale-btn:first-child { border-radius: 8px 0 0 8px; }
+  .scale-btn:last-child  { border-radius: 0 8px 8px 0; margin-right: 0; }
+  .scale-btn:hover       { background: #fdf2f2; border-color: #f5c6c4; z-index: 1; position: relative; }
+  .scale-btn.active      { background: var(--accent); color: white; border-color: var(--accent); z-index: 1; position: relative; }
+
+  textarea {
+    width: 100%; border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+    color: var(--text); resize: vertical; min-height: 90px;
+    transition: border-color 0.2s; background: white;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea::placeholder { color: #bbb; }
+
+  .actions { display: flex; align-items: center; justify-content: space-between; margin-top: 28px; flex-wrap: wrap; gap: 12px; }
+
+  .submit-btn {
+    background: var(--accent); color: white; border: none;
+    padding: 14px 36px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    transition: background 0.2s, transform 0.1s; letter-spacing: 0.02em;
+  }
+  .submit-btn:hover { background: #c73530; transform: translateY(-1px); }
+
+  .clear-link {
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    text-decoration: underline; background: none; border: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  @media (max-width: 500px) {
+    .header-card, .q-card { padding: 22px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<form class="form-wrapper" action="https://formspree.io/f/mjgalqbw" method="POST">
+
+  <div class="header-card">
+    <div class="eyebrow">🔒 Strictly Confidential &nbsp;|&nbsp; For Your Eyes Only</div>
+    <h1>An <em>Entirely Serious</em> Performance Review 🔥</h1>
+    <p>Thank you for taking time out of your very busy schedule to complete this survey. Your feedback is deeply valued and will be reviewed with the utmost professionalism. Probably.</p>
+    <div class="required-note"><span>*</span> Required</div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="q-card">
+    <label class="q-label">1. Overall, how would you rate the experience so far? <span class="req">*</span></label>
+    <div class="q-hint">Be brutal. We can handle it.</div>
+    <div class="stars">
+      <input type="radio" name="Overall rating" id="s5" value="★★★★★ (5/5)" required><label for="s5">★</label>
+      <input type="radio" name="Overall rating" id="s4" value="★★★★☆ (4/5)"><label for="s4">★</label>
+      <input type="radio" name="Overall rating" id="s3" value="★★★☆☆ (3/5)"><label for="s3">★</label>
+      <input type="radio" name="Overall rating" id="s2" value="★★☆☆☆ (2/5)"><label for="s2">★</label>
+      <input type="radio" name="Overall rating" id="s1" value="★☆☆☆☆ (1/5)"><label for="s1">★</label>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="q-card">
+    <label class="q-label">2. How enthusiastic is your partner on a scale of 1–10? <span class="req">*</span></label>
+    <div class="q-hint">1 = "Are they asleep?" &nbsp;|&nbsp; 10 = "Absolute menace (complimentary)"</div>
+    <div class="scale-labels"><span>Needs a coffee</span><span>Unstoppable force</span></div>
+    <div class="scale-row" id="scale-enthusiasm">
+      <button type="button" class="scale-btn" onclick="setScale(1)">1</button>
+      <button type="button" class="scale-btn" onclick="setScale(2)">2</button>
+      <button type="button" class="scale-btn" onclick="setScale(3)">3</button>
+      <button type="button" class="scale-btn" onclick="setScale(4)">4</button>
+      <button type="button" class="scale-btn" onclick="setScale(5)">5</button>
+      <button type="button" class="scale-btn" onclick="setScale(6)">6</button>
+      <button type="button" class="scale-btn" onclick="setScale(7)">7</button>
+      <button type="button" class="scale-btn" onclick="setScale(8)">8</button>
+      <button type="button" class="scale-btn" onclick="setScale(9)">9</button>
+      <button type="button" class="scale-btn" onclick="setScale(10)">10</button>
+    </div>
+    <input type="hidden" name="Enthusiasm score" id="enthusiasm-val" required>
+  </div>
+
+  <!-- Q3 -->
+  <div class="q-card">
+    <label class="q-label">3. Which of the following best describes the frequency? <span class="req">*</span></label>
+    <div class="options">
+      <label class="option-row"><input type="radio" name="Frequency" value="Help, I need a rest day" required> "Help, I need a rest day"</label>
+      <label class="option-row"><input type="radio" name="Frequency" value="Perfectly calibrated, like a Swiss watch"> "Perfectly calibrated, like a Swiss watch"</label>
+      <label class="option-row"><input type="radio" name="Frequency" value="Could we… possibly… schedule something?"> "Could we… possibly… schedule something?"</label>
+      <label class="option-row"><input type="radio" name="Frequency" value="I've genuinely lost track of time"> "I've genuinely lost track of time"</label>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="q-card">
+    <label class="q-label">4. Please select all that apply. <span class="req">*</span></label>
+    <div class="q-hint">Tick as many as you like. This is a safe space.</div>
+    <div class="options">
+      <label class="option-row"><input type="checkbox" name="Vibes" value="Genuinely surpassed expectations"> Genuinely surpassed expectations 🏆</label>
+      <label class="option-row"><input type="checkbox" name="Vibes" value="Would recommend to a friend (hypothetically)"> Would recommend to a friend (hypothetically)</label>
+      <label class="option-row"><input type="checkbox" name="Vibes" value="There were moments of pure comedy"> There were moments of pure comedy</label>
+      <label class="option-row"><input type="checkbox" name="Vibes" value="Communication: top marks"> Communication: top marks</label>
+      <label class="option-row"><input type="checkbox" name="Vibes" value="Room for professional development"> Room for professional development</label>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="q-card">
+    <label class="q-label">5. What's working brilliantly and should never, ever change? <span class="req">*</span></label>
+    <div class="q-hint">Please be as specific as possible. For, uh, research purposes.</div>
+    <textarea name="What's working brilliantly" placeholder="The thing about the thing... you know the one." required></textarea>
+  </div>
+
+  <!-- Q6 -->
+  <div class="q-card">
+    <label class="q-label">6. Any suggestions for future improvements or new initiatives?</label>
+    <div class="q-hint">Think of this as your R&D budget. Sky's the limit.</div>
+    <textarea name="Suggestions for improvement" placeholder="I've always thought we could explore..."></textarea>
+  </div>
+
+  <!-- Q7 -->
+  <div class="q-card">
+    <label class="q-label">7. How likely are you to continue this arrangement? <span class="req">*</span></label>
+    <div class="options">
+      <label class="option-row"><input type="radio" name="Likelihood to continue" value="Extremely likely — diary already blocked out" required> Extremely likely — I've already blocked out the diary</label>
+      <label class="option-row"><input type="radio" name="Likelihood to continue" value="Likely, pending further data collection"> Likely, pending further data collection</label>
+      <label class="option-row"><input type="radio" name="Likelihood to continue" value="Undecided — check back after a nap"> Undecided — check back after a nap</label>
+      <label class="option-row"><input type="radio" name="Likelihood to continue" value="Not applicable — I am the arrangement"> Not applicable — I <em>am</em> the arrangement</label>
+    </div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="q-card">
+    <label class="q-label">8. Any final remarks for the management team?</label>
+    <div class="q-hint">This is your moment. No note is too petty, too complimentary, or too unhinged.</div>
+    <textarea name="Final remarks" placeholder="Dear management, I would like to formally raise..."></textarea>
+  </div>
+
+  <div class="actions">
+    <button type="submit" class="submit-btn">Submit Feedback 💌</button>
+    <button type="reset" class="clear-link" onclick="clearScale()">Clear form</button>
+  </div>
+
+</form>
+
+<script>
+  function setScale(val) {
+    document.getElementById('enthusiasm-val').value = val + '/10';
+    document.querySelectorAll('#scale-enthusiasm .scale-btn').forEach((b, i) => {
+      b.classList.toggle('active', i + 1 === val);
+    });
+  }
+
+  function clearScale() {
+    document.getElementById('enthusiasm-val').value = '';
+    document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.option-row').forEach(r => r.classList.remove('checked'));
+  }
+
+  document.querySelectorAll('.option-row input').forEach(input => {
+    input.addEventListener('change', () => {
+      if (input.type === 'radio') {
+        document.querySelectorAll(`input[name="${input.name}"]`).forEach(r => {
+          r.closest('.option-row').classList.toggle('checked', r.checked);
+        });
+      } else {
+        input.closest('.option-row').classList.toggle('checked', input.checked);
+      }
+    });
+  });
+</script>
+</body>
+</html>
